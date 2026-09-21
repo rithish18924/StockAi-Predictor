@@ -1,0 +1,94 @@
+<div class="card glass-card h-100" id="predictionControlCard">
+    <div class="card-header bg-transparent border-bottom border-subtle d-flex flex-wrap justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-cpu text-accent fs-5"></i>
+            <h3 class="h5 fw-bold text-white mb-0">LSTM Price Forecast</h3>
+        </div>
+        <div class="d-flex align-items-center gap-2" id="modelStatusContainer">
+            <span class="badge badge-pulse-yellow" id="modelStatusBadge">
+                <i class="bi bi-arrow-repeat spin-icon me-1"></i> Checking Model...
+            </span>
+            <button class="btn btn-outline-light btn-sm" id="btnTrainModalTrigger" data-bs-toggle="modal" data-bs-target="#trainModelModal">
+                <i class="bi bi-gear me-1"></i> Train Model
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+        <!-- Forecast Period Selector -->
+        <div class="mb-4">
+            <label class="form-label text-secondary small fw-semibold text-uppercase tracking-wider">Forecast Horizon</label>
+            <div class="btn-group w-100 forecast-btn-group" role="group" aria-label="Forecast days selection">
+                <input type="radio" class="btn-check" name="forecastDays" id="day1" value="1" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="day1">1 Day</label>
+
+                <input type="radio" class="btn-check" name="forecastDays" id="day7" value="7" autocomplete="off" checked>
+                <label class="btn btn-outline-secondary" for="day7">7 Days</label>
+
+                <input type="radio" class="btn-check" name="forecastDays" id="day14" value="14" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="day14">14 Days</label>
+
+                <input type="radio" class="btn-check" name="forecastDays" id="day30" value="30" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="day30">30 Days</label>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <button class="btn btn-accent w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-accent mb-4" id="btnRunPrediction">
+            <i class="bi bi-magic"></i>
+            <span>Generate Forecast</span>
+        </button>
+
+        <!-- Prediction Summary Hero Card -->
+        <div id="predictionHeroResult" class="d-none">
+            <div class="prediction-highlight-box p-3 rounded mb-4">
+                <div class="d-flex justify-content-between align-items-center text-secondary small mb-1">
+                    <span>Forecast Target (<span id="predTargetDate">--</span>)</span>
+                    <span class="badge bg-secondary-subtle text-secondary" id="predHorizonBadge">7 Days</span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2 mb-2">
+                    <span class="fs-1 fw-bold font-monospace text-white" id="predFinalPrice">--.--</span>
+                    <span class="badge font-monospace px-2 py-1" id="predChangeBadge">--</span>
+                </div>
+                <div class="text-secondary small">
+                    Estimated Uncertainty Band (95%):
+                    <span class="text-light font-monospace fw-semibold" id="predConfidenceRange">-- - --</span>
+                </div>
+            </div>
+
+            <!-- Multi-step breakdown table (scrollable) -->
+            <div class="table-responsive forecast-table-container mb-3" style="max-height: 220px;">
+                <table class="table table-dark table-sm table-hover align-middle mb-0 font-monospace small">
+                    <thead class="table-surface-sticky text-secondary">
+                        <tr>
+                            <th>Day</th>
+                            <th>Date</th>
+                            <th>Forecast</th>
+                            <th>Change</th>
+                            <th>Est. Range</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecastTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State Prompt -->
+        <div id="predictionEmptyPrompt" class="text-center py-4 text-secondary">
+            <i class="bi bi-graph-up fs-2 text-muted mb-2 d-block"></i>
+            <p class="small mb-0">Select a horizon and click <strong>Generate Forecast</strong> to view model estimates.</p>
+        </div>
+
+        <!-- Financial Risk Disclaimer -->
+        <div class="disclaimer-callout mt-4 p-3 rounded">
+            <div class="d-flex gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning flex-shrink-0 mt-1"></i>
+                <p class="small text-secondary mb-0 leading-relaxed">
+                    <strong>Responsible AI Disclaimer:</strong> These forecasts are experimental machine-learning estimates based on historical statistical patterns. They are <strong>NOT guaranteed future prices, assurances, or financial advice</strong>. Stock markets carry risk and can fluctuate unpredictably.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

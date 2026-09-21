@@ -1,0 +1,376 @@
+/* =====================================================================
+   StockAI Predictor — Modern Financial Terminal Theme
+   ===================================================================== */
+
+:root {
+    --bg-app: #080c14;
+    --bg-surface: #0e1526;
+    --bg-surface-elevated: #141d33;
+    --bg-subtle: #19243e;
+    --bg-input: #0a0f1d;
+    
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-accent: rgba(56, 189, 248, 0.3);
+
+    --text-main: #f8fafc;
+    --text-muted: #64748b;
+    --text-secondary: #94a3b8;
+
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --accent-glow: rgba(56, 189, 248, 0.25);
+
+    --bullish: #10b981;
+    --bullish-bg: rgba(16, 185, 129, 0.12);
+    --bearish: #ef4444;
+    --bearish-bg: rgba(239, 68, 68, 0.12);
+
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+}
+
+.font-monospace {
+    font-family: var(--font-mono) !important;
+}
+
+/* ---------------- Navbar ---------------- */
+.bg-surface {
+    background-color: var(--bg-surface) !important;
+}
+
+.bg-surface-subtle {
+    background-color: var(--bg-surface-elevated);
+}
+
+.border-subtle {
+    border-color: var(--border-color) !important;
+}
+
+.brand-logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #0284c7, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+}
+
+.brand-title {
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.brand-subtitle {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.badge-market-tag {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--accent);
+    font-size: 0.75rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 20px;
+}
+
+/* ---------------- Hero Section ---------------- */
+.hero-section {
+    background: radial-gradient(circle at 50% 20%, #152238 0%, #080c14 70%);
+}
+
+.hero-glow-sphere {
+    position: absolute;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 80%);
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+.text-gradient-accent {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.badge-hero-pill {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: var(--accent);
+    font-weight: 600;
+    border-radius: 30px;
+}
+
+.max-w-xl { max-width: 640px; }
+.max-w-2xl { max-width: 760px; }
+
+.search-box-card {
+    background: rgba(14, 21, 38, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-accent);
+    border-radius: 16px;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.search-box-card:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 25px var(--accent-glow);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-accent:hover {
+    background: linear-gradient(135deg, #0369a1, #0284c7);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+}
+
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.ticker-pill {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.65rem;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.ticker-pill:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ---------------- Stock Chips ---------------- */
+.stock-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.stock-chip:hover {
+    background: var(--bg-subtle);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.quick-switch-chip {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.quick-switch-chip:hover,
+.quick-switch-chip.active {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ---------------- Cards & Glassmorphism ---------------- */
+.glass-card {
+    background: rgba(14, 21, 38, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.2s ease;
+}
+
+.glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.metric-pill {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.metric-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.bg-bullish-subtle {
+    background-color: var(--bullish-bg) !important;
+    color: var(--bullish) !important;
+}
+
+.bg-bearish-subtle {
+    background-color: var(--bearish-bg) !important;
+    color: var(--bearish) !important;
+}
+
+/* ---------------- Charts ---------------- */
+.timeframe-btn-group .btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+}
+
+.timeframe-btn-group .btn.active {
+    background-color: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 700;
+}
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 20, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 10px;
+}
+
+/* ---------------- Prediction Controls ---------------- */
+.forecast-btn-group .btn-check:checked + .btn {
+    background-color: var(--accent);
+    color: #080c14;
+    border-color: var(--accent);
+    font-weight: 700;
+}
+
+.prediction-highlight-box {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.08));
+    border: 1px solid var(--border-accent);
+}
+
+.forecast-table-container {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.table-surface-sticky {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-surface-elevated) !important;
+    z-index: 2;
+}
+
+.legend-color-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.bg-history { background-color: #94a3b8; }
+.bg-forecast { background-color: #38bdf8; }
+.bg-confidence { background-color: rgba(56, 189, 248, 0.25); border: 1px dashed #38bdf8; }
+
+.badge-pulse-yellow {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.badge-pulse-green {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.disclaimer-callout {
+    background: rgba(234, 179, 8, 0.06);
+    border-left: 3px solid #eab308;
+}
+
+.spin-icon {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+/* ---------------- Skeleton Loader ---------------- */
+.skeleton-loader {
+    animation: pulse 1.5s infinite;
+}
+
+.skeleton-line {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.25; }
+}
+
+/* ---------------- Scorecard Metric Box ---------------- */
+.metric-box {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.metric-box:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}

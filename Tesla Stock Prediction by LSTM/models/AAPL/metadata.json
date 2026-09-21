@@ -1,0 +1,34 @@
+{
+  "ticker": "AAPL",
+  "trained_at": "2026-09-21T10:14:41.443290",
+  "data_start": "2024-09-19",
+  "data_end": "2026-09-18",
+  "train_samples": 340,
+  "test_samples": 41,
+  "sequence_length": 60,
+  "epochs_completed": 5,
+  "features": [
+    "Close",
+    "Volume",
+    "SMA_20",
+    "EMA_12",
+    "RSI_14",
+    "MACD",
+    "MACD_Signal",
+    "BB_High",
+    "BB_Low",
+    "Daily_Return",
+    "Volatility_20"
+  ],
+  "test_metrics": {
+    "mae": 18.125,
+    "mse": 479.5072,
+    "rmse": 21.8977,
+    "mape": 5.56,
+    "directional_accuracy": 42.5,
+    "r2_score": -2.7473
+  },
+  "residual_std": 13.3732,
+  "final_train_loss": 0.006879,
+  "final_val_loss": 0.018567
+}

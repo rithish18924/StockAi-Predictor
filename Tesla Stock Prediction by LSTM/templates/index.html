@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockAI Predictor | Multi-Stock Price Analysis & LSTM Forecasting</title>
+    <meta name="description" content="Professional financial analytics platform with deep learning LSTM stock price forecasting across US and Indian equity markets.">
+
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_prefix|default('') }}/static/css/style.css">
+</head>
+<body class="bg-dark-app text-light">
+
+    {% include 'components/navbar.html' %}
+
+    <!-- Hero Section -->
+    <header class="hero-section py-5 position-relative overflow-hidden">
+        <div class="hero-glow-sphere"></div>
+        <div class="container py-5 position-relative z-1 text-center">
+            <span class="badge badge-hero-pill mb-3 px-3 py-2">
+                <i class="bi bi-stars text-accent me-1"></i> Multi-Market LSTM Deep Learning
+            </span>
+            <h1 class="display-3 fw-extrabold text-white tracking-tight mb-3">
+                AI-Powered Stock Market <br>
+                <span class="text-gradient-accent">Analysis &amp; Prediction</span>
+            </h1>
+            <p class="lead text-secondary max-w-2xl mx-auto mb-5">
+                Analyze historical market data, compute real-time technical indicators, and explore multi-day LSTM price forecasts across Indian (NSE/BSE) and US (NASDAQ/NYSE) equities.
+            </p>
+
+            <!-- Centered Stock Search Box -->
+            <div class="search-box-card mx-auto p-2 glass-card shadow-lg max-w-xl">
+                <form action="/dashboard" method="GET" class="d-flex align-items-center gap-2" id="heroSearchForm">
+                    <div class="input-group input-group-lg border-0">
+                        <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+                            <i class="bi bi-search fs-5"></i>
+                        </span>
+                        <input type="text" name="ticker" id="heroTickerInput" class="form-control bg-transparent border-0 text-light fs-5 font-monospace" placeholder="Enter ticker (e.g. TCS, RELIANCE, AAPL, NVDA)" required autocomplete="off">
+                    </div>
+                    <button class="btn btn-accent btn-lg px-4 py-2 fw-semibold d-flex align-items-center gap-2" type="submit">
+                        <span>Analyze</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Popular Quick Select Ticker Pills -->
+            <div class="quick-pills-container mt-4 d-flex flex-wrap justify-content-center align-items-center gap-2 text-secondary small">
+                <span class="me-1"><i class="bi bi-fire text-warning me-1"></i>Trending:</span>
+                
+                <!-- Indian Stocks -->
+                {% for stock in popular_stocks.indian[:4] %}
+                <a href="/dashboard?ticker={{ stock.ticker }}" class="ticker-pill font-monospace">
+                    {{ stock.ticker }}
+                </a>
+                {% endfor %}
+
+                <!-- US Stocks -->
+                {% for stock in popular_stocks.us[:4] %}
+                <a href="/dashboard?ticker={{ stock.ticker }}" class="ticker-pill font-monospace">
+                    {{ stock.ticker }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Highlights Grid -->
+    <section class="py-5 border-top border-subtle">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="h3 fw-bold text-white mb-2">Comprehensive Multi-Market Coverage</h2>
+                <p class="text-secondary small">Seamlessly switch between Indian bluechips and global US tech leaders</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Indian Markets Card -->
+                <div class="col-md-6">
+                    <div class="card glass-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="flag-icon fs-4">🇮🇳</span>
+                                <div>
+                                    <h3 class="h5 fw-bold text-white mb-0">Indian Stock Markets</h3>
+                                    <span class="text-secondary small">NSE &amp; BSE Listed Securities (INR)</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary-subtle text-secondary">NSE / BSE</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Enter standard NSE symbols or short aliases (e.g. <code>TCS</code> automatically resolves to <code>TCS.NS</code>, <code>RELIANCE</code> to <code>RELIANCE.NS</code>).
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for stock in popular_stocks.indian %}
+                            <a href="/dashboard?ticker={{ stock.ticker }}" class="stock-chip">
+                                <span class="font-monospace fw-bold">{{ stock.ticker }}</span>
+                                <span class="stock-chip-name text-secondary">{{ stock.name.split()[0] }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- US Markets Card -->
+                <div class="col-md-6">
+                    <div class="card glass-card h-100 p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="flag-icon fs-4">🇺🇸</span>
+                                <div>
+                                    <h3 class="h5 fw-bold text-white mb-0">US Stock Markets</h3>
+                                    <span class="text-secondary small">NASDAQ &amp; NYSE Equities (USD)</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary-subtle text-secondary">NASDAQ / NYSE</span>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Full support for Wall Street equities, tech giants, ETFs, and major indices.
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for stock in popular_stocks.us %}
+                            <a href="/dashboard?ticker={{ stock.ticker }}" class="stock-chip">
+                                <span class="font-monospace fw-bold">{{ stock.ticker }}</span>
+                                <span class="stock-chip-name text-secondary">{{ stock.name.split()[0] }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture & Features Overview -->
+    <section class="py-5 bg-surface-subtle border-top border-subtle">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="h3 fw-bold text-white mb-2">Engineered with ML Rigor</h2>
+                <p class="text-secondary small">Zero-leakage pipeline designed for production-grade time-series forecasting</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-item p-4 rounded glass-card h-100">
+                        <div class="feature-icon mb-3 text-accent fs-3">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h4 class="h5 fw-bold text-white mb-2">Zero Data Leakage</h4>
+                        <p class="text-secondary small mb-0">
+                            Strict chronological train/test splitting. Feature and target scalers are fitted solely on historical training sequences, preventing lookahead bias.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-item p-4 rounded glass-card h-100">
+                        <div class="feature-icon mb-3 text-accent fs-3">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h4 class="h5 fw-bold text-white mb-2">Stacked LSTM Network</h4>
+                        <p class="text-secondary small mb-0">
+                            Deep recurrent neural network with dropout regularization, early stopping, and adaptive learning rates to capture cyclical trends and momentum.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-item p-4 rounded glass-card h-100">
+                        <div class="feature-icon mb-3 text-accent fs-3">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <h4 class="h5 fw-bold text-white mb-2">Responsible Uncertainty</h4>
+                        <p class="text-secondary small mb-0">
+                            Forecasts include residual-based confidence intervals that naturally expand over multi-step horizons, clearly communicating model uncertainty.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prominent Disclaimer Banner -->
+    <footer class="py-4 border-top border-subtle text-secondary small">
+        <div class="container text-center">
+            <p class="mb-2">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Notice:</strong> StockAI Predictor is an educational and analytical research demonstration.
+                Model outputs are statistical approximations and do not constitute investment advice.
+            </p>
+            <p class="text-muted mb-0 font-monospace">
+                StockAI Predictor &copy; 2026. Built with Flask, TensorFlow, and Plotly/Chart.js.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_prefix|default('') }}/static/js/app.js"></script>
+</body>
+</html>

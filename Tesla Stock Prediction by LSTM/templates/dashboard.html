@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ initial_ticker }} Analysis &amp; Prediction | StockAI Predictor</title>
+    <meta name="description" content="Detailed historical market analysis, technical indicators, and LSTM forecast for {{ initial_ticker }}.">
+
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+    <!-- Custom Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_prefix|default('') }}/static/css/style.css">
+</head>
+<body class="bg-dark-app text-light" data-active-ticker="{{ initial_ticker }}">
+
+    {% include 'components/navbar.html' %}
+
+    <!-- Main Dashboard Container -->
+    <main class="container-fluid px-4 py-4">
+
+        <!-- Notification Toast Container -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+            <div id="liveToast" class="toast align-items-center text-white bg-dark border-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                        <i class="bi bi-info-circle text-accent"></i>
+                        <span>Notification message</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 1: Stock Overview Card & Market Selector Quick Bar -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                {% include 'components/stock_card.html' %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card glass-card h-100 p-4">
+                    <h3 class="h6 fw-bold text-white text-uppercase tracking-wider mb-3">
+                        <i class="bi bi-shuffle me-1 text-accent"></i> Quick Stock Switcher
+                    </h3>
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block mb-2">Indian Equities (NSE)</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for stock in popular_stocks.indian %}
+                            <a href="/dashboard?ticker={{ stock.ticker }}" class="quick-switch-chip {% if stock.ticker == initial_ticker %}active{% endif %}">
+                                {{ stock.ticker }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-secondary small d-block mb-2">US Equities (NASDAQ/NYSE)</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for stock in popular_stocks.us %}
+                            <a href="/dashboard?ticker={{ stock.ticker }}" class="quick-switch-chip {% if stock.ticker == initial_ticker %}active{% endif %}">
+                                {{ stock.ticker }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Interactive Historical Chart & Period Switcher -->
+        <div class="card glass-card mb-4">
+            <div class="card-header bg-transparent border-bottom border-subtle d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-graph-up text-accent fs-5"></i>
+                    <h3 class="h5 fw-bold text-white mb-0">Historical Market Performance</h3>
+                </div>
+                <!-- Timeframe Pills -->
+                <div class="btn-group timeframe-btn-group" role="group" aria-label="Chart Period">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-period="1mo">1M</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-period="3mo">3M</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-period="6mo">6M</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-period="1y">1Y</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-period="5y">5Y</button>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="chart-container position-relative" style="height: 420px;">
+                    <canvas id="historicalPriceChart"></canvas>
+                    <div id="chartLoadingOverlay" class="loading-overlay d-none">
+                        <div class="spinner-border text-accent" role="status"></div>
+                        <span class="ms-2 text-secondary small">Loading historical candles...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Technical Indicators Row (RSI, MACD, Moving Averages) -->
+        <div class="row g-4 mb-4">
+            <!-- RSI Card -->
+            <div class="col-lg-6">
+                <div class="card glass-card h-100">
+                    <div class="card-header bg-transparent border-bottom border-subtle d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary-subtle text-light font-monospace">RSI (14)</span>
+                            <span class="text-secondary small">Relative Strength Index</span>
+                        </div>
+                        <span class="badge" id="rsiStatusBadge">--</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart-container" style="height: 180px;">
+                            <canvas id="rsiChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MACD Card -->
+            <div class="col-lg-6">
+                <div class="card glass-card h-100">
+                    <div class="card-header bg-transparent border-bottom border-subtle d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary-subtle text-light font-monospace">MACD (12, 26, 9)</span>
+                            <span class="text-secondary small">Trend Momentum</span>
+                        </div>
+                        <span class="badge" id="macdStatusBadge">--</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart-container" style="height: 180px;">
+                            <canvas id="macdChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: AI Prediction Section & Prediction Chart -->
+        <div class="row g-4 mb-4">
+            <!-- Left: Prediction Controls & Results Card -->
+            <div class="col-lg-5">
+                {% include 'components/prediction_card.html' %}
+            </div>
+
+            <!-- Right: Interactive Forecast vs Historical Comparison Chart -->
+            <div class="col-lg-7">
+                <div class="card glass-card h-100">
+                    <div class="card-header bg-transparent border-bottom border-subtle d-flex justify-content-between align-items-center py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-activity text-accent fs-5"></i>
+                            <h3 class="h5 fw-bold text-white mb-0">Historical vs LSTM Forecast Trajectory</h3>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary font-monospace" id="forecastLegendBadge">Multi-Step Horizon</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container position-relative" style="height: 380px;">
+                            <canvas id="forecastComparisonChart"></canvas>
+                            <div id="forecastLoadingOverlay" class="loading-overlay d-none">
+                                <div class="spinner-border text-accent" role="status"></div>
+                                <span class="ms-2 text-secondary small">Calculating autoregressive LSTM trajectory...</span>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-center gap-4 mt-3 small text-secondary">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="legend-color-box bg-history"></span>
+                                <span>Recent Historical Close</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="legend-color-box bg-forecast"></span>
+                                <span>LSTM Projected Price</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="legend-color-box bg-confidence"></span>
+                                <span>95% Uncertainty Boundary</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 5: Model Evaluation Performance Scorecard -->
+        <div class="card glass-card mb-4" id="modelEvaluationCard">
+            <div class="card-header bg-transparent border-bottom border-subtle d-flex flex-wrap justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clipboard2-data text-accent fs-5"></i>
+                    <h3 class="h5 fw-bold text-white mb-0">Model Performance &amp; Evaluation Scorecard</h3>
+                </div>
+                <span class="text-secondary small">Evaluated on out-of-sample chronological test set</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3 text-center" id="metricsRowContainer">
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded" data-bs-toggle="tooltip" title="{{ metric_explanations.mae }}">
+                            <span class="text-secondary small d-block mb-1">MAE</span>
+                            <span class="fs-4 fw-bold font-monospace text-white" id="metricMAE">--</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded" data-bs-toggle="tooltip" title="{{ metric_explanations.rmse }}">
+                            <span class="text-secondary small d-block mb-1">RMSE</span>
+                            <span class="fs-4 fw-bold font-monospace text-white" id="metricRMSE">--</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded" data-bs-toggle="tooltip" title="{{ metric_explanations.mape }}">
+                            <span class="text-secondary small d-block mb-1">MAPE</span>
+                            <span class="fs-4 fw-bold font-monospace text-white" id="metricMAPE">--%</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded" data-bs-toggle="tooltip" title="{{ metric_explanations.directional_accuracy }}">
+                            <span class="text-secondary small d-block mb-1">Directional Acc.</span>
+                            <span class="fs-4 fw-bold font-monospace text-accent" id="metricDirectional">--%</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded" data-bs-toggle="tooltip" title="{{ metric_explanations.r2_score }}">
+                            <span class="text-secondary small d-block mb-1">R² Score</span>
+                            <span class="fs-4 fw-bold font-monospace text-white" id="metricR2">--</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="metric-box p-3 rounded">
+                            <span class="text-secondary small d-block mb-1">Test Samples</span>
+                            <span class="fs-4 fw-bold font-monospace text-light" id="metricSamples">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Details Metadata Bar -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-3 border-top border-subtle small text-secondary">
+                    <div>
+                        <i class="bi bi-clock-history me-1"></i>
+                        <span>Last Trained: <strong class="text-light" id="metaTrainedDate">Not trained yet</strong></span>
+                    </div>
+                    <div>
+                        <span>Window Length: <strong class="text-light font-monospace" id="metaSeqLen">60 Days</strong></span>
+                    </div>
+                    <div>
+                        <span>Dataset Range: <strong class="text-light font-monospace" id="metaDateRange">--</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Train Model Modal -->
+    <div class="modal fade" id="trainModelModal" tabindex="-1" aria-labelledby="trainModelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-surface border-subtle text-light shadow-lg">
+                <div class="modal-header border-bottom border-subtle">
+                    <h4 class="modal-title h5 fw-bold d-flex align-items-center gap-2" id="trainModelModalLabel">
+                        <i class="bi bi-cpu text-accent"></i> Train LSTM Model for <span id="modalTickerTitle" class="text-accent">{{ initial_ticker }}</span>
+                    </h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-4">
+                        This pipeline fetches 2 years of historical data, computes technical indicators, executes a leak-free chronological 80/20 train/test split, and trains a stacked LSTM neural network with EarlyStopping.
+                    </p>
+
+                    <div class="mb-4">
+                        <label for="inputEpochs" class="form-label text-secondary small fw-semibold">Training Epochs</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="range" class="form-range flex-grow-1" min="5" max="40" step="5" value="20" id="inputEpochs">
+                            <span class="badge bg-secondary-subtle fs-6 font-monospace" id="epochsDisplay">20</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mt-1">
+                            <span>Fast (5)</span>
+                            <span>Optimal (20)</span>
+                            <span>Deep (40)</span>
+                        </div>
+                    </div>
+
+                    <div id="trainingProgressBox" class="alert alert-dark border-subtle p-3 d-none">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="spinner-border text-accent spinner-border-sm" role="status"></div>
+                            <div class="flex-grow-1">
+                                <span class="d-block small fw-bold text-light" id="trainingStatusText">Training neural network...</span>
+                                <span class="text-muted small">This takes ~15–30 seconds on CPU.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-subtle">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="btnCancelTrain">Close</button>
+                    <button type="button" class="btn btn-accent px-4 d-flex align-items-center gap-2" id="btnStartTraining">
+                        <i class="bi bi-play-fill"></i>
+                        <span>Start Training</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & Chart Utilities -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_prefix|default('') }}/static/js/app.js"></script>
+    <script src="{{ url_prefix|default('') }}/static/js/charts.js"></script>
+    <script src="{{ url_prefix|default('') }}/static/js/dashboard.js"></script>
+</body>
+</html>
